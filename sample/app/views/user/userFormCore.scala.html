@@ -1,0 +1,5 @@
+@(form: Form[User])(implicit request: Request[Any], flash: Flash, messages: Messages)
+
+@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-5") }
+
+@b3.text(form("username"), '_label -> "Username")

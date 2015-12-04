@@ -1,4 +1,4 @@
-@(currentPage: dao.Page[User], listForm: Form[String])(implicit request: Request[Any], flash: Flash, messages: Messages)
+@(currentPage: dao.Page[User], listForm: Form[String], currentSortBy: String, currentOrder: String)(implicit request: Request[Any], flash: Flash, messages: Messages)
 
 @import controllers.routes
 
@@ -10,7 +10,15 @@
 ****************************************@
 @link(newPage:Int, newSortByOpt:Option[String] = None) = @{
     val query = listForm.get
+    val (sortBy, order) = Dao.sortByOrder(currentSortBy, currentOrder, newSortByOpt)
     routes.UserController.list(newPage, query)
+}
+
+@**********************************
+* Helper generating table headers *
+***********************************@
+@header(key:String, title:String) = {
+@_tableHeader(key, title, currentSortBy, currentOrder, link _)
 }
 
 
@@ -23,6 +31,7 @@
     @b3.form(link(0)) {
         @b3.text(listForm("query"), '_label -> "", 'placeholder -> "Name")
         @b3.submit('class -> "btn btn-primary"){ Search }
+        <a class="btn btn-success" id="add" href="@routes.UserController.create()"><span class="glyphicon glyphicon-plus"></span></a>
     }
 
 
@@ -37,8 +46,8 @@
         <table class="table goals table-striped table-fixed-header">
             <thead class="header">
                 <tr>
-                   <th>id</th>
-                    <th>username</th>
+                    @header("id", "#")
+                    @header("username", "Username")
                 </tr>
             </thead>
             <tbody>

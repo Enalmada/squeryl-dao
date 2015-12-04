@@ -1,7 +1,6 @@
 # squeryl-dao [![Build Status](https://travis-ci.org/Enalmada/squeryl-dao.svg?branch=master)](https://travis-ci.org/Enalmada/squeryl-dao) [![Join the chat at https://gitter.im/Enalmada/squeryl-dao](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Enalmada/squeryl-dao?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Squeryl is the perfect intersection of sql familiarity and typesafety.  But it leaves you to do all the common dao things like get(), paging, etc.
-So this module attempts to make starting with squeryl more convenient so you can focus on your business logic.
+Squeryl is an amazing scala ORM.  This module attempts to make starting with squeryl more convenient so you can focus on your business logic.
 
 #### Version information
 **I believe squeryl-dao needs Play! Framework 2.4.x or later**

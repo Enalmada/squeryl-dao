@@ -1,7 +1,6 @@
 package controllers
 
 import javax.inject.Inject
-
 import models.User
 import play.api.Logger
 import play.api.cache.CacheApi
@@ -10,19 +9,19 @@ import play.api.data.format.Formatter
 import play.api.data.{Form, FormError}
 import play.api.i18n.MessagesApi
 import play.api.mvc.Action
-import dao.PageFilter
+import dao.{Entity, Dao, PageFilter}
 
+// An example of a model controller with common crud actions
 class UserController @Inject()(implicit val messagesApi: MessagesApi, cache: CacheApi) extends BaseController {
 
   implicit val listPage = routes.UserController.list()
 
-  // This is so we can show the category error on the category field.  Need access to id and parentId to compare
+  // Manual bind so we can check for duplicate name and report custom error
   val duplicateUsernameCheck = new Formatter[String] {
 
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] = {
       // "data" lets you access all form data values
       val id = data.getOrElse("id", "")
-      Logger.debug(s"userID: $id")
       val username = data.getOrElse("username", "")
       val otherUser: Option[User] = User.findBy(username = Some(username)).headOption
       if (username != "" && otherUser.isDefined && id.toLong != otherUser.get.id) {
@@ -42,7 +41,6 @@ class UserController @Inject()(implicit val messagesApi: MessagesApi, cache: Cac
       "id" -> optional(longNumber),
       "username" -> of(duplicateUsernameCheck)
     ) { (id, username) => {
-      Logger.debug(s"userID: $id")
       id.map(User.get).getOrElse(User()).copy(username = username)
     }
     } { user =>
@@ -57,12 +55,18 @@ class UserController @Inject()(implicit val messagesApi: MessagesApi, cache: Cac
     * @param page  Current page number (starts from 0)
     * @param query Filter applied on User names
     */
-  def list(page: Int, query: String) = Action { implicit request =>
+  def list(page: Int, sortBy: String, sortOrder: String, query: String) = Action { implicit request =>
     val form: Form[String] = Form("query" -> text).fill(query)
     val queryOpt = stringOpt(query)
     val pageFilter = PageFilter(page, 20)
-    val list = User.list(queryOpt, pageFilter)
-    Ok(views.html.listUser(list, form))
+    val dbSortOrder = if (sortOrder == "desc") Dao.Desc else Dao.Asc
+    val list = User.list(queryOpt, Dao.SortBy(sortBy, dbSortOrder), pageFilter)
+    Ok(views.html.user.listUser(list, form, sortBy, sortOrder))
+  }
+
+  def create() = Action { implicit request =>
+    val form = userForm.fill(User())
+    Ok(views.html.user.createUserForm(form))
   }
 
 
@@ -76,7 +80,7 @@ class UserController @Inject()(implicit val messagesApi: MessagesApi, cache: Cac
       case None => NotFound
       case Some(user) =>
         val form = userForm.fill(user)
-        Ok(views.html.editUserForm(id, form))
+        Ok(views.html.user.editUserForm(id, form))
     }
   }
 
@@ -87,17 +91,29 @@ class UserController @Inject()(implicit val messagesApi: MessagesApi, cache: Cac
     */
   def update(id: Long) = Action { implicit request =>
 
-    implicit val auditUser = User.findAll.head
-
+    implicit val auditUser = User.findAll.head // Replace with loggedIn user from authentication framework
 
     userForm.bindFromRequest.fold(
-      formWithErrors => BadRequest(views.html.editUserForm(id, formWithErrors)),
+      formWithErrors => BadRequest(views.html.user.editUserForm(id, formWithErrors)),
       success = userForm => {
         User.save(userForm)
         val flashMessage = "User has been updated"
         GO_HOME.flashing("success" -> flashMessage)
       })
 
+  }
+
+  def save = Action { implicit request =>
+
+    implicit val auditUser = User.findAll.head // Replace with loggedIn user from authentication framework
+
+    userForm.bindFromRequest.fold(
+      formWithErrors => BadRequest(views.html.user.createUserForm(formWithErrors)),
+      success = userForm => {
+        User.save(userForm)
+        val flashMessage = "User has been created"
+        GO_HOME.flashing("success" -> flashMessage)
+      })
   }
 
   /**

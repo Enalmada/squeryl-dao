@@ -1,0 +1,5 @@
+@(key:String, title:String, currentSortBy:String, currentOrder:String, link:(Int,Option[String]) => play.api.mvc.Call)
+<th class="@key.replace(".","_") header @if(currentSortBy == key) @{if(currentOrder == "asc") "headerSortDown" else "headerSortUp"}">
+    <a class="js-pjax" data-pjax="#contentArea" href="@link(0, Some(key))">@title</a>
+</th>
+

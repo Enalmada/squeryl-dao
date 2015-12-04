@@ -380,6 +380,25 @@ object Dao {
       case Dao.Desc => new OrderByArg(nameMatch).desc
     }
 
+  def sortByOrder(currentSortBy: String, currentOrder: String, newSortByOpt: Option[String]): (String, String) = {
+
+    val sortBy = newSortByOpt.getOrElse(currentSortBy)
+    val order = newSortByOpt.map { newSortBy =>
+      if (currentSortBy.equals(sortBy)) {
+        if (currentOrder == "asc") {
+          "desc"
+        } else {
+          "asc"
+        }
+      } else {
+        "desc"
+      }
+    }.getOrElse(currentOrder)
+
+    (sortBy, order)
+
+  }
+
   /**
     * Handles pagination of a query. Returns a Page object with results and page properties.
     *

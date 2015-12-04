@@ -1,9 +1,11 @@
 package models
 
 import play.api.test.PlaySpecification
-import test.support.SampleTest
+import support.SampleTest
 
-
+/**
+  * Example of an initial test running in H2 database.
+  */
 class UserSpec extends PlaySpecification with SampleTest {
 
   "User" should {

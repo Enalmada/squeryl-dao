@@ -1,0 +1,24 @@
+@(id: Long, userForm: Form[User])(implicit request: Request[Any], flash: Flash, messages: Messages, cache: CacheApi)
+
+@import controllers.routes
+@import views.html.tags._
+
+@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-5") }
+
+@main("Edit User") {
+
+    @_flashMessage(userForm)
+
+    @b3.form(controllers.routes.UserController.delete(id), 'class -> "pull-right") {
+        @b3.submit('class -> "btn btn-danger"){ Delete }
+    }
+
+    <h1>Edit User</h1>
+    
+    @b3.form(controllers.routes.UserController.update(id)) {
+        @b3.hiddens("id" -> id)
+        @b3.text(userForm("username"), '_label -> "Username")
+        @_saveCancel(routes.UserController.list())
+    }
+
+}

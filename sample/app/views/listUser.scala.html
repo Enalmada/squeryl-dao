@@ -1,0 +1,62 @@
+@(currentPage: dao.Page[User], listForm: Form[String])(implicit request: Request[Any], flash: Flash, messages: Messages)
+
+@import controllers.routes
+
+@import b3.inline.fieldConstructor
+@import views.html.tags._
+
+@****************************************
+* Helper generating navigation links    *
+****************************************@
+@link(newPage:Int, newSortByOpt:Option[String] = None) = @{
+    val query = listForm.get
+    routes.UserController.list(newPage, query)
+}
+
+
+@main("List User") {
+    
+    <h1 id="homeTitle">Users</h1>
+
+    @_listSuccessFlash()
+
+    @b3.form(link(0)) {
+        @b3.text(listForm("query"), '_label -> "", 'placeholder -> "Name")
+        @b3.submit('class -> "btn btn-primary"){ Search }
+    }
+
+
+    @if(currentPage.items.isEmpty) {
+
+        <div class="well">
+            <em>Nothing to display</em>
+        </div>
+
+    } else {
+        
+        <table class="table goals table-striped table-fixed-header">
+            <thead class="header">
+                <tr>
+                   <th>id</th>
+                    <th>username</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @for(user <- currentPage.items) {
+                    <tr>
+                    	<td>@user.id</td>
+                        <td><a href="@routes.UserController.edit(user.id)">@user.username</a></td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+
+        @_pagination(currentPage, link)
+
+    }
+        
+}
+
+            

@@ -1,0 +1,31 @@
+@(currentPage:dao.Page[_], link:(Int, Option[String]) => Call)
+
+@if(currentPage.prev.isDefined || currentPage.next.isDefined) {
+
+    <ul class="pagination pull-right">
+        @currentPage.prev.map { page =>
+        <li class="prev">
+            <a class="js-pjax" data-pjax="#contentArea" href="@link(page, None)">&larr; Previous</a>
+        </li>
+        }.getOrElse {
+            <li class="prev disabled">
+                <a>&larr; Previous</a>
+            </li>
+        }
+        @*
+        <li class="current">
+        <a>Displaying @(currentPage.offset + 1) to @(currentPage.offset + totalSize) of @currentPage.total</a>
+        </li>
+        *@
+        @currentPage.next.map { page =>
+        <li class="next">
+            <a class="js-pjax" data-pjax="#contentArea" href="@link(page, None)">Next &rarr;</a>
+        </li>
+        }.getOrElse {
+            <li class="next disabled">
+                <a>Next &rarr;</a>
+            </li>
+        }
+    </ul>
+
+}

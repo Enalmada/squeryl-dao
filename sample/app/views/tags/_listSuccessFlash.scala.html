@@ -1,0 +1,7 @@
+@()(implicit flash: _root_.play.api.mvc.Flash)
+
+@flash.get("success").map { message =>
+    <div class="alert alert-success" role="alert">
+        @Html(message)
+    </div>
+}

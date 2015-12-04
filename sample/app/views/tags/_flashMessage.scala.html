@@ -1,0 +1,22 @@
+@(form: Form[_])(implicit flash: _root_.play.api.mvc.Flash)
+
+@flash.get("success").map { message =>
+    <div class="alert alert-success" role="alert">
+        @Html(message)
+    </div>
+}
+@flash.get("error").map { message =>
+    <div class="alert alert-danger" role="alert">
+        @Html(message)
+    </div>
+}
+
+@if(form.hasGlobalErrors) {
+    <div class="alert alert-danger" role="alert">
+        <ul>
+        @for(error <- form.globalErrors) {
+            <li>@error.message</li>
+        }
+        </ul>
+    </div>
+}

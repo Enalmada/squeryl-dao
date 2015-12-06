@@ -1,5 +1,7 @@
 # squeryl-dao [![Build Status](https://travis-ci.org/Enalmada/squeryl-dao.svg?branch=master)](https://travis-ci.org/Enalmada/squeryl-dao) [![Join the chat at https://gitter.im/Enalmada/squeryl-dao](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Enalmada/squeryl-dao?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+[![Join the chat at https://gitter.im/Enalmada/squeryl-dao](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Enalmada/squeryl-dao?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Squeryl is an amazing scala ORM.  This module attempts to make starting with squeryl more convenient so you can focus on your business logic.
 
 #### Version information

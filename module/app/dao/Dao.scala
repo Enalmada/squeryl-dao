@@ -319,7 +319,6 @@ abstract class Dao[T <: IdEntity](val table: Table[T]) {
     save(entity)
   }
 
-
 }
 
 

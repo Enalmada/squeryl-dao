@@ -24,7 +24,7 @@ trait AuditedEntity extends IdEntity with Optimistic {
 
 }
 
-trait AuditUser extends IdEntity {
+trait AuditUser extends AuditedEntity {
   def id: Long
 }
 

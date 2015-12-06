@@ -31,9 +31,17 @@ val appDependencies = Seq(
 )
 ```
 
-## Features
+## Dao Features
+* Sample model class "User" extending the dao
+* crud controller for model including auditing and optimistic locking
+* views showing pagination, basic sorting
 
-* 
+## Extras
+* bootstrap abstraction with play-bootstrap3
+* bootstrap theme with bootswatch
+* DRY (dont repeat yourself) flash message handling function and create/edit forms core
+* If you need auth, I highly recommend starting with play2-auth.
+
 
 ## Versions
 * **TRUNK** [not released in the repository, yet]

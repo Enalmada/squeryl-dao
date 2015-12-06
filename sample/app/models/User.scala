@@ -1,11 +1,14 @@
 package models
 
+import dao.AuditedEntity
 import dao.AuditUser
 import org.squeryl.dsl.ast.OrderByArg
 import dao.SquerylEntrypointForMyApp._
 import dao._
 
-case class User(id: Long = Entity.UnpersistedId, username: String = "") extends AuditUser
+case class User(id: Long = Entity.UnpersistedId,
+                username: String = "",
+                override val occVersionNumber: Int = 0) extends AuditUser
 
 object User extends Dao[User](SampleSchema.userTable) {
 
@@ -35,8 +38,8 @@ object User extends Dao[User](SampleSchema.userTable) {
   }
 
   /**
-    * Instead of having many similar functions (getByName, getByEmail), consider just one
-    * with options for each column.
+    * Instead of having many similar functions (getByName, getByEmail), consider just one function here
+    * with options for each column.  This will keep your code simpler.
     *
     * @param username
     * @return
@@ -54,6 +57,21 @@ object User extends Dao[User](SampleSchema.userTable) {
   def create(username: String)(implicit user: AuditUser): User = {
     val newUser = User.save(User(username = username))
     newUser
+  }
+
+
+  /**
+    * Detect if entity has changed. Ideally this would be in dao too.
+    *
+    * @param id
+    * @param occVersionNumber
+    * @return
+    */
+  def changed(id: Option[Long], occVersionNumber: Int): Boolean = inTransaction {
+    if (id.isEmpty)
+      false
+    else
+      table.where(entity => entity.id === id.? and entity.occVersionNumber <> occVersionNumber).nonEmpty
   }
 
 

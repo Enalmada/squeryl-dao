@@ -23,6 +23,7 @@ object Global extends GlobalSettings {
       // since this is an in-memory database that gets wiped out every time the app is shutdown,
       // we need to recreate the schema
       inTransaction {
+        SampleSchema.printDdl
         SampleSchema.create
       }
     } else {
@@ -47,7 +48,7 @@ object Global extends GlobalSettings {
         implicit val user: User = User(Entity.UnpersistedId, username = "SampleUser")
         Seq(
           user
-        ).foreach(User.save)
+        ).foreach(u => User.save(u, 1)) // Bootstrapping in the first user
       }
     }
   }

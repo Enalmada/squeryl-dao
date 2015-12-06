@@ -9,14 +9,15 @@ import play.api.data.format.Formatter
 import play.api.data.{Form, FormError}
 import play.api.i18n.MessagesApi
 import play.api.mvc.Action
-import dao.{Entity, Dao, PageFilter}
+import dao.{AuditUser, Entity, Dao, PageFilter}
 
 // An example of a model controller with common crud actions
 class UserController @Inject()(implicit val messagesApi: MessagesApi, cache: CacheApi) extends BaseController {
 
   implicit val listPage = routes.UserController.list()
 
-  // Manual bind so we can check for duplicate name and report custom error
+  // Manual bind so we can check for duplicate name and report custom error with link to offending object
+  // since inline validation doesn't give you access to the other data and we need the id in addition to the name
   val duplicateUsernameCheck = new Formatter[String] {
 
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] = {
@@ -39,13 +40,16 @@ class UserController @Inject()(implicit val messagesApi: MessagesApi, cache: Cac
   def userForm = Form(
     mapping(
       "id" -> optional(longNumber),
-      "username" -> of(duplicateUsernameCheck)
-    ) { (id, username) => {
-      id.map(User.get).getOrElse(User()).copy(username = username)
+      "username" -> of(duplicateUsernameCheck),
+      "occVersionNumber" -> default(number, 0)
+    ) { (id, username, occVersionNumber) => {
+      id.map(User.get).getOrElse(User()).copy(username = username, occVersionNumber = occVersionNumber)
     }
     } { user =>
-      Some(Some(user.id), user.username)
+      Some(Some(user.id), user.username, user.occVersionNumber)
     }
+      .verifying("This user has just been changed by someone else.",
+        i => !User.changed(if (i.id < 0) None else Some(i.id), i.occVersionNumber))
   )
 
 
@@ -91,7 +95,7 @@ class UserController @Inject()(implicit val messagesApi: MessagesApi, cache: Cac
     */
   def update(id: Long) = Action { implicit request =>
 
-    implicit val auditUser = User.findAll.head // Replace with loggedIn user from authentication framework
+    implicit val auditUser = User.findAll.head // Replace with loggedIn user from your authentication framework
 
     userForm.bindFromRequest.fold(
       formWithErrors => BadRequest(views.html.user.editUserForm(id, formWithErrors)),
@@ -105,7 +109,7 @@ class UserController @Inject()(implicit val messagesApi: MessagesApi, cache: Cac
 
   def save = Action { implicit request =>
 
-    implicit val auditUser = User.findAll.head // Replace with loggedIn user from authentication framework
+    implicit val auditUser = User.findAll.head // Replace with loggedIn user from your authentication framework
 
     userForm.bindFromRequest.fold(
       formWithErrors => BadRequest(views.html.user.createUserForm(formWithErrors)),

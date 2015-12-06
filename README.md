@@ -45,9 +45,8 @@ val appDependencies = Seq(
 
 ## Versions
 * **TRUNK** [not released in the repository, yet]
-  * Contribute something!
-* **0.1.0** [release on 2015-11-30]
-  * Initial release.
+  * Getting feedback from experts before making it public.
+
   
 ## License
 

@@ -46,6 +46,7 @@ val appDependencies = Seq(
 ## Versions
 * **TRUNK** [not released in the repository, yet]
   * Getting feedback from experts before making it public.
+  * Run "activator publishLocal" for now.
 
   
 ## License

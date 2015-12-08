@@ -15,7 +15,7 @@ libraryDependencies ++= Seq(
 	cache,
 	jdbc,
 	evolutions,
-	"com.github.enalmada" %% "squeryl-dao" % "0.1.0-SNAPSHOT",
+	"com.github.enalmada" %% "squeryl-dao" % "0.1.0",
 	"org.postgresql" % "postgresql" % "9.4-1205-jdbc42", // DB Connection
 	"org.webjars" %% "webjars-play" % "2.4.0-1",
 	"org.webjars" % "bootswatch-spacelab" % "3.3.5",     // Aftermarket bootstrap look

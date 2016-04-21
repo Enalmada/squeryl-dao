@@ -49,7 +49,7 @@ pomExtra in Global := {
     <scm>
       <connection>scm:git:git@github.com:enalmada/squeryl-dao.git</connection>
       <developerConnection>scm:git:git@github.com:enalmada/squeryl-dao.git</developerConnection>
-      <url>https://github.com/enalmada</url>
+      <url>https://github.com/Enalmada/squeryl-dao</url>
     </scm>
     <developers>
       <developer>

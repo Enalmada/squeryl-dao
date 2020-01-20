@@ -3,8 +3,9 @@
 Squeryl is an amazing scala ORM.  This module attempts to make starting with squeryl more convenient so you can focus on your business logic.
 
 #### Version information
-**I believe squeryl-dao needs Play! Framework 2.4.x or later**
+**I believe squeryl-dao needs Play! Framework 2.8.x or later**
 
+squeryl-dao is built and tested with Scala 2.12.8 (from `0.2.0`)
 squeryl-dao is built and tested with Scala 2.11.7 (from `0.1.0`)
 
 * `2.4.0` to `2.4.x` (last: `0.1.0` - [master branch](https://github.com/enalmada/squeryl-dao/tree/master))
@@ -19,15 +20,15 @@ Clone the project and go to `samples`. Create a sample database "createdb -U pos
 ```xml
 <dependency>
     <groupId>com.github.enalmada</groupId>
-    <artifactId>squeryl-dao_2.11</artifactId>
-    <version>0.1.0</version>
+    <artifactId>squeryl-dao_2.21</artifactId>
+    <version>0.2.0</version>
 </dependency>
 ```
 or
 
 ```scala
 val appDependencies = Seq(
-  "com.github.enalmada" %% "squeryl-dao" % "0.1.0"
+  "com.github.enalmada" %% "squeryl-dao" % "0.2.0"
 )
 ```
 
@@ -44,6 +45,8 @@ val appDependencies = Seq(
 
 
 ## Versions
+* **0.2.0** [release on 2020-01-19]
+  * update for new logging
 * **0.1.0** [release on 2015-12-07]
   * Initial release.
 

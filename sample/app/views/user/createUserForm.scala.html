@@ -1,9 +1,9 @@
-@(form: Form[User])(implicit request: Request[Any], flash: Flash, messages: Messages, cache: CacheApi)
+@(form: Form[User])(implicit request: Request[Any], flash: Flash, messages: Messages, cache: SyncCacheApi)
 
 @import controllers.routes
 @import views.html.tags._
 
-@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-5") }
+@implicitFieldConstructor = @{ b4.horizontal.fieldConstructor("col-md-2", "col-md-5") }
 
 @main("Edit User") {
 
@@ -11,7 +11,7 @@
 
     <h1>Add User</h1>
 
-    @b3.form(controllers.routes.UserController.save()) {
+    @b4.form(controllers.routes.UserController.save()) {
         @userFormCore(form)
         @_saveCancel(routes.UserController.list())
     }

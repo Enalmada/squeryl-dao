@@ -1,7 +1,7 @@
 @(form: Form[User])(implicit request: Request[Any], flash: Flash, messages: Messages)
 
-@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-5") }
+@implicitFieldConstructor = @{ b4.horizontal.fieldConstructor("col-md-2", "col-md-5") }
 
-@b3.hidden("occVersionNumber", form("occVersionNumber").value)
+@b4.hidden("occVersionNumber", form("occVersionNumber").value)
 
-@b3.text(form("username"), '_label -> "Username")
+@b4.text(form("username"), '_label -> "Username")

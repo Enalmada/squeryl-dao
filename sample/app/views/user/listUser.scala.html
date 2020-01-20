@@ -2,7 +2,7 @@
 
 @import controllers.routes
 
-@import b3.inline.fieldConstructor
+@implicitFieldConstructor = @{ b4.inline.fieldConstructor() }
 @import views.html.tags._
 
 @****************************************
@@ -23,14 +23,14 @@
 
 
 @main("List User") {
-    
+
     <h1 id="homeTitle">Users</h1>
 
     @_listSuccessFlash()
 
-    @b3.form(link(0)) {
-        @b3.text(listForm("query"), '_label -> "", 'placeholder -> "Name")
-        @b3.submit('class -> "btn btn-primary"){ Search }
+    @b4.form(link(0)) {
+        @b4.text(listForm("query"), '_label -> "", 'placeholder -> "Name")
+        @b4.submit('class -> "btn btn-primary"){ Search }
         <a class="btn btn-success" id="add" href="@routes.UserController.create()"><span class="glyphicon glyphicon-plus"></span></a>
     }
 
@@ -42,7 +42,7 @@
         </div>
 
     } else {
-        
+
         <table class="table goals table-striped table-fixed-header">
             <thead class="header">
                 <tr>
@@ -65,7 +65,6 @@
         @_pagination(currentPage, link)
 
     }
-        
+
 }
 
-            

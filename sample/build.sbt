@@ -1,31 +1,34 @@
+
 name := """squeryl-dao-sample"""
 
-version := "0.1.0"
+version := "0.2.0"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.12.8"
 
 routesGenerator := InjectedRoutesGenerator
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala, SbtWeb)
 
-resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
+resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
 resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
-	cache,
+	ehcache,
 	jdbc,
 	evolutions,
-	"com.github.enalmada" %% "squeryl-dao" % "0.1.0",
-	"org.postgresql" % "postgresql" % "9.4-1205-jdbc42", // DB Connection
-	"org.webjars" %% "webjars-play" % "2.4.0-1",
-	"org.webjars" % "bootswatch-spacelab" % "3.3.5",     // Aftermarket bootstrap look
-	"com.adrianhurt" %% "play-bootstrap3" % "0.4.4-P24"  // Abstracts out bootstrap crud
+	guice,
+	"com.github.enalmada" %% "squeryl-dao" % "0.2.0",
+	"org.postgresql" % "postgresql" % "42.2.9", // DB Connection
+	"com.h2database" % "h2" % "1.4.200" % "test",
+	"com.adrianhurt" %% "play-bootstrap" % "1.5.1-P27-B4",  // Abstracts out bootstrap crud
+"org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % "test",
+
 )
 
 libraryDependencies += specs2 % Test
 
 TwirlKeys.templateImports in Compile ++= Seq(
-	"_root_.play.api.cache.CacheApi",
+	"_root_.play.api.cache.SyncCacheApi",
 	"dao._"
 )

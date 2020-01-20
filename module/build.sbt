@@ -1,16 +1,16 @@
 name := """squeryl-dao"""
 
-version := "0.1.0"
+version := "0.2.0"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.12.8"
 
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 libraryDependencies ++= Seq(
-  cache,
-  "org.squeryl" %% "squeryl" % "0.9.6-RC4" // DB Persistence
+  cacheApi,
+  "org.squeryl" %% "squeryl" % "0.9.14" // DB Persistence
 )
 
 

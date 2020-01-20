@@ -1,23 +1,19 @@
 package dao
 
 import java.sql.Timestamp
-
+import play.api.Logger
 import org.squeryl._
 import org.squeryl.dsl._
 import org.squeryl.dsl.ast.{OrderByArg, ExpressionNode, FunctionNode}
-import play.api.Logger
-import play.api.Play.current
-import play.api.cache.Cache
 import dao.SelectOptions._
-
+import play.api.cache._
 import scala.concurrent.duration._
 import scala.reflect.ClassTag
-
 
 object SquerylEntrypointForMyApp extends PrimitiveTypeMode
 
 abstract class Dao[T <: IdEntity](val table: Table[T]) {
-
+  val logger: Logger = Logger(this.getClass())
   import dao.SquerylEntrypointForMyApp._
 
   implicit object keyedEntityImplicit extends KeyedEntityDef[T, Long] {
@@ -34,7 +30,7 @@ abstract class Dao[T <: IdEntity](val table: Table[T]) {
   def cacheExpiration: Duration = 10 minutes
 
   def findAll()(implicit ct: ClassTag[T]): List[T] = inTransaction {
-    Logger.debug(s"$ct findAll")
+    logger.debug(s"$ct findAll")
     table.allRows.toList
   }
 
@@ -45,7 +41,7 @@ abstract class Dao[T <: IdEntity](val table: Table[T]) {
     * @return
     */
   def findById(id: Long)(implicit ct: ClassTag[T]): Option[T] = inTransaction {
-    Logger.debug(s"$ct findById $id")
+    logger.debug(s"$ct findById $id")
     table.lookup(id)
   }
 
@@ -58,11 +54,10 @@ abstract class Dao[T <: IdEntity](val table: Table[T]) {
     * @param id the ID of the entity
     * @return the entity
     */
-  def findByIdFromCache(id: Long)(implicit ct: ClassTag[T]): Option[T] = {
-    Logger.debug(s"$ct findByIdFromCache $id")
+  def findByIdFromCache(id: Long)(implicit ct: ClassTag[T], cache: SyncCacheApi): Option[T] = {
+    logger.debug(s"$ct findByIdFromCache $id")
 
-    val expiration = cacheExpiration.toSeconds.toInt
-    Cache.getOrElse[Option[T]](s"${ct}_option_$id", expiration) {
+    cache.getOrElseUpdate[Option[T]](s"${ct}_option_$id", cacheExpiration) {
       findById(id)
     }
   }
@@ -87,7 +82,7 @@ abstract class Dao[T <: IdEntity](val table: Table[T]) {
     * @return the entity
     */
   def get(id: Long)(implicit ct: ClassTag[T]): T = inTransaction {
-    Logger.debug(s"$ct get $id")
+    logger.debug(s"$ct get $id")
     table.get(id)
   }
 
@@ -99,7 +94,7 @@ abstract class Dao[T <: IdEntity](val table: Table[T]) {
     * @return
     */
   def get(ids: Seq[Long])(implicit ct: ClassTag[T]) = inTransaction {
-    Logger.debug(s"$ct get ids:${ids.mkString(",")}")
+    logger.debug(s"$ct get ids:${ids.mkString(",")}")
     if (ids.nonEmpty) table.where(e => e.id in ids).toList.sortBy(id => ids.indexOf(id)) else List()
   }
 
@@ -128,23 +123,21 @@ abstract class Dao[T <: IdEntity](val table: Table[T]) {
     * @param id the ID of the entity
     * @return the entity
     */
-  def getFromCache(id: Long)(implicit ct: ClassTag[T]): T = {
+  def getFromCache(id: Long)(implicit ct: ClassTag[T], cache: SyncCacheApi): T = {
 
-    Logger.debug(s"getFromCache ${ct.toString()} $id")
+    logger.debug(s"getFromCache ${ct.toString()} $id")
 
-    val expiration = cacheExpiration.toSeconds.toInt
-    Cache.getOrElse[T](cacheKey(id), expiration) {
-      Logger.debug(s"getFromCache miss ${ct.toString()} $id")
+    cache.getOrElseUpdate[T](cacheKey(id), cacheExpiration) {
+      logger.debug(s"getFromCache miss ${ct.toString()} $id")
       get(id)
     }
   }
 
-  def findFromCache(id: Long)(implicit ct: ClassTag[T]): Option[T] = {
-    Logger.debug(s"findFromCache ${ct.toString()} $id")
+  def findFromCache(id: Long)(implicit ct: ClassTag[T], cache: SyncCacheApi): Option[T] = {
+    logger.debug(s"findFromCache ${ct.toString()} $id")
 
-    val expiration = cacheExpiration.toSeconds.toInt
-    Cache.getOrElse[Option[T]](cacheKey(id), expiration) {
-      Logger.debug(s"findFromCache miss ${ct.toString()} $id")
+    cache.getOrElseUpdate[Option[T]](cacheKey(id), cacheExpiration) {
+      logger.debug(s"findFromCache miss ${ct.toString()} $id")
       findById(id)
     }
   }
@@ -159,10 +152,10 @@ abstract class Dao[T <: IdEntity](val table: Table[T]) {
     * @param ids the IDs
     * @return the entities
     */
-  def getFromCache(ids: Seq[Long])(implicit ct: ClassTag[T]): List[T] = {
-    Logger.debug(s"$ct getFromCache ${ids.mkString(",")}")
+  def getFromCache(ids: Seq[Long])(implicit ct: ClassTag[T], cache: SyncCacheApi): List[T] = {
+    logger.debug(s"$ct getFromCache ${ids.mkString(",")}")
 
-    val cacheResults = for (id <- ids.toList) yield Cache.getAs[T](cacheKey(id))
+    val cacheResults = for (id <- ids.toList) yield cache.get[T](cacheKey(id))
 
     //separate out the results that were in the cache from the ones that were not in the cache
     val alreadyCachedResults = cacheResults collect { case Some(x: T) => x }
@@ -172,7 +165,7 @@ abstract class Dao[T <: IdEntity](val table: Table[T]) {
     val resultsFromDB = if (idsOfUncachedResults.nonEmpty) get(idsOfUncachedResults) else List()
 
     // put the results fetched by the DB into the cache for next time
-    for (entity <- resultsFromDB) Cache.set(cacheKey(entity.id), entity, cacheExpiration.toSeconds.toInt)
+    for (entity <- resultsFromDB) cache.set(cacheKey(entity.id), entity, cacheExpiration)
 
     // combine the results and resort
     (alreadyCachedResults ++ resultsFromDB).sortBy(entity => ids.indexOf(entity.id))
@@ -187,7 +180,7 @@ abstract class Dao[T <: IdEntity](val table: Table[T]) {
     */
   def findByIds(ids: Seq[Long])(implicit ct: ClassTag[T]): Seq[T] = inTransaction {
 
-    Logger.debug(s"$ct findByIds ${ids.mkString(",")}")
+    logger.debug(s"$ct findByIds ${ids.mkString(",")}")
 
     // Get entities. There is no guarantee order will be the same as ids.
     val unsortedEntities = table.where(t => t.id in ids).toSeq
@@ -209,7 +202,7 @@ abstract class Dao[T <: IdEntity](val table: Table[T]) {
     * @return
     */
   def isDefined(id: Long)(implicit ct: ClassTag[T]): Boolean = inTransaction {
-    Logger.debug(s"$ct isDefined $id")
+    logger.debug(s"$ct isDefined $id")
     findById(id).isDefined
   }
 

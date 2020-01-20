@@ -1,20 +1,22 @@
 package controllers
 
+import dao.{Dao, PageFilter}
 import javax.inject.Inject
 import models.User
-import play.api.Logger
-import play.api.cache.CacheApi
+import play.api.cache.SyncCacheApi
 import play.api.data.Forms._
 import play.api.data.format.Formatter
 import play.api.data.{Form, FormError}
 import play.api.i18n.MessagesApi
-import play.api.mvc.Action
-import dao.{AuditUser, Entity, Dao, PageFilter}
+import play.api.mvc.{AbstractController, Call, ControllerComponents}
+import service.SquerylSession
 
 // An example of a model controller with common crud actions
-class UserController @Inject()(implicit val messagesApi: MessagesApi, cache: CacheApi) extends BaseController {
+class UserController @Inject()(implicit val components: ControllerComponents, messagesApi: MessagesApi, cache: SyncCacheApi, squerylSession: SquerylSession) extends AbstractController(components) with BaseController {
 
   implicit val listPage = routes.UserController.list()
+
+  def GO_HOME()(implicit listPage: Call) = Redirect(listPage)
 
   // Manual bind so we can check for duplicate name and report custom error with link to offending object
   // since inline validation doesn't give you access to the other data and we need the id in addition to the name
@@ -54,11 +56,11 @@ class UserController @Inject()(implicit val messagesApi: MessagesApi, cache: Cac
 
 
   /**
-    * Display the paginated list of Users.
-    *
-    * @param page  Current page number (starts from 0)
-    * @param query Filter applied on User names
-    */
+   * Display the paginated list of Users.
+   *
+   * @param page  Current page number (starts from 0)
+   * @param query Filter applied on User names
+   */
   def list(page: Int, sortBy: String, sortOrder: String, query: String) = Action { implicit request =>
     val form: Form[String] = Form("query" -> text).fill(query)
     val queryOpt = stringOpt(query)
@@ -75,10 +77,10 @@ class UserController @Inject()(implicit val messagesApi: MessagesApi, cache: Cac
 
 
   /**
-    * Display the 'edit form' of a existing User.
-    *
-    * @param id Id of the User to edit
-    */
+   * Display the 'edit form' of a existing User.
+   *
+   * @param id Id of the User to edit
+   */
   def edit(id: Long) = Action { implicit request =>
     User.findById(id) match {
       case None => NotFound
@@ -89,10 +91,10 @@ class UserController @Inject()(implicit val messagesApi: MessagesApi, cache: Cac
   }
 
   /**
-    * Handle the 'edit form' submission
-    *
-    * @param id Id of the User to edit
-    */
+   * Handle the 'edit form' submission
+   *
+   * @param id Id of the User to edit
+   */
   def update(id: Long) = Action { implicit request =>
 
     implicit val auditUser = User.findAll.head // Replace with loggedIn user from your authentication framework
@@ -121,8 +123,8 @@ class UserController @Inject()(implicit val messagesApi: MessagesApi, cache: Cac
   }
 
   /**
-    * Handle User deletion
-    */
+   * Handle User deletion
+   */
   def delete(id: Long) = Action { implicit request =>
     val user: User = User.get(id)
     User.delete(user.id)

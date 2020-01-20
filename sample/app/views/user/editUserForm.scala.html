@@ -1,22 +1,22 @@
-@(id: Long, form: Form[User])(implicit request: Request[Any], flash: Flash, messages: Messages, cache: CacheApi)
+@(id: Long, form: Form[User])(implicit request: Request[Any], flash: Flash, messages: Messages, cache: SyncCacheApi)
 
 @import controllers.routes
 @import views.html.tags._
 
-@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-5") }
+@implicitFieldConstructor = @{ b4.horizontal.fieldConstructor("col-md-2", "col-md-5") }
 
 @main("Edit User") {
 
     @_flashMessage(form)
 
-    @b3.form(controllers.routes.UserController.delete(id), 'class -> "pull-right") {
-        @b3.submit('class -> "btn btn-danger"){ Delete }
+    @b4.form(controllers.routes.UserController.delete(id), 'class -> "pull-right") {
+        @b4.submit('class -> "btn btn-danger"){ Delete }
     }
 
     <h1>Edit User</h1>
-    
-    @b3.form(controllers.routes.UserController.update(id)) {
-        @b3.hiddens("id" -> id)
+
+    @b4.form(controllers.routes.UserController.update(id)) {
+        @b4.hiddens("id" -> id)
         @userFormCore(form)
         @_saveCancel(routes.UserController.list())
     }

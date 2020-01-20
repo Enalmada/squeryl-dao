@@ -1,12 +1,9 @@
 package controllers
 
 import play.api.i18n.I18nSupport
-import play.api.mvc._
 
 // Abstract out common controller functions
-trait BaseController extends Controller with I18nSupport {
-
-  def GO_HOME()(implicit listPage: Call) = Redirect(listPage)
+trait BaseController extends I18nSupport {
 
   val defaultPageSize = 50
 
